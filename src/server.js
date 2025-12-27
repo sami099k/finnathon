@@ -2,6 +2,7 @@ const app = require('./app');
 const connectToDatabase = require('./config/db');
 
 require('dotenv').config();
+require("./jobs/detectionEngine");
 const PORT = process.env.PORT || 3000;
 
 async function start() {
@@ -21,5 +22,6 @@ async function start() {
     process.exit(1);
   }
 }
+
 
 start();
