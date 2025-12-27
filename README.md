@@ -632,4 +632,4 @@ NIT WARANGAL
 
 ---
 
-**Built by the DIVDE AND CHILL Team* | Sentinel Protocol v1.0.0
+**Built by the DEVELOP AND CHILL Team* | Sentinel Protocol v1.0.0
