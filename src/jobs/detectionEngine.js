@@ -87,7 +87,7 @@ async function detectUnauthorizedAccess(now) {
 
     await Alert.create({
       clientId,
-      violationType: "Failed Authentication Attempts",
+      violationType: "UNAUTHORIZED_ACCESS",
       severity: "MEDIUM",
       timestamp: new Date(),
       details: { failedAttempts: r.failures, windowMinutes: 10 }
@@ -100,28 +100,40 @@ async function detectUnauthorizedAccess(now) {
 // ---------------- RULE 3 ----------------
 // /transaction without /balance in last 5 mins
 async function detectSequenceAnomaly(now) {
-  const fiveMinutesAgo = new Date(now - 5 * 60 * 1000);
+  const fiveMinutesAgo = new Date(now - 1 * 60 * 1000);
 
   const txCalls = await ApiLog.find({
-    endpoint: "/transaction",
+    endpoint: "/api/transaction",
     timestamp: { $gte: fiveMinutesAgo }
   });
 
   for (const tx of txCalls) {
+      const clientId = tx._id;
     const balanceCheck = await ApiLog.findOne({
       clientIp: tx.clientIp,
-      endpoint: "/balance",
+      endpoint: "/api/balance",
       timestamp: { $gte: fiveMinutesAgo }
     });
 
     if (!balanceCheck) {
+       const existing = await Alert.findOne({
+      clientId,
+      violationType: "UNUSUAL_API_SEQUENCE",
+      timestamp: { $gte: fiveMinutesAgo }
+    }).lean();
+    
+    if (existing) {
+      console.log(`Skipping alert creation for ${clientId}: recent alert exists at ${existing.timestamp} for sequence anomaly`);
+      continue;
+    }
+
       await Alert.create({
         clientId: tx.clientIp,
         violationType: "UNUSUAL_API_SEQUENCE",
         severity: "LOW",
         details: {
-          accessed: "/transaction",
-          missing: "/balance"
+          accessed: "/api/transaction",
+          missing: "/api/balance"
         }
       });
     }

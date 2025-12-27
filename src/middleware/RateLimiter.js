@@ -1,9 +1,9 @@
-const redis = require('../lib/redis');
+const redis = require('../lib/redisClient');
 
 const RATE_PREFIX = 'rate:limit:'; // rate:limit:{clientIP}
 const BLOCKED_PREFIX = 'blocked:';  // blocked:{clientIP}
 
-function rateLimit({ windowSec = 60, maxRequests = 100, blockOnLimit = false, blockSec = 300 } = {}) {
+function rateLimit({ windowSec = 60, maxRequests = 10, blockOnLimit = false, blockSec = 10 } = {}) {
   return async function (req, res, next) {
     try {
       const clientIp = (req.ip || req.headers['x-forwarded-for'] || 'unknown').toString();
@@ -26,7 +26,12 @@ function rateLimit({ windowSec = 60, maxRequests = 100, blockOnLimit = false, bl
       if (count > maxRequests) {
         // optionally place a temporary block
         if (blockOnLimit) {
-          await redis.set(`${BLOCKED_PREFIX}${clientIp}`, '1', 'EX', blockSec);
+          await redis.set(`${BLOCKED_PREFIX}${clientIp}`, '1', {
+            expiration: {
+              value: blockSec,
+              type: "EX"
+            }
+          });
         }
         return res.status(429).json({ message: 'Too Many Requests' });
       }

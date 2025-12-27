@@ -17,6 +17,7 @@
     "ioredis": "^5.8.2",
     "mongoose": "^9.0.2",
     "nodemon": "^3.1.11",
+    "redis": "^5.10.0",
     "socket.io": "^4.8.3"
   }
 }
