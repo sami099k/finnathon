@@ -1,20 +1,17 @@
 const express = require('express');
-const healthController = require('../controllers/healthController');
+const logsController = require('../controllers/logsController');
 const accountController = require('../controllers/accountController');
 
 const router = express.Router();
-const rateLimit = require('../middleware/RateLimiter');
-// health check
-router.get('/health', healthController.health);
 
-// mock fintech APIs
+// Mock FinTech APIs
 router.get('/balance', accountController.respondBalance);
-router.post('/transaction',   rateLimit({
-    windowSec: 60,
-    maxRequests: 10,
-    blockOnLimit: true,
-    blockSec: 20 // 5 minutes
-  }),accountController.processTransaction);
+router.post('/transaction', accountController.processTransaction);
 router.get('/history', accountController.getHistory);
+
+// Admin log monitoring endpoints
+router.get('/logs', logsController.getLogs);
+router.get('/logs/stats', logsController.getStats);
+router.get('/alerts', logsController.getAlerts);
 
 module.exports = router;

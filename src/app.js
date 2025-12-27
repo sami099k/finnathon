@@ -1,18 +1,28 @@
 const express = require('express');
+const path = require('path');
 const routes = require('./routes');
-const errorHandler = require('./middleware/errorHandler');
 const requestLogger = require('./middleware/requestLogger');
-// const ConnectToDatabase = require('./config/db');
-const app = express();
- require("./lib/redisClient")
- // const rateLimit = require('./middleware/RateLimiter');
-// // // global rate limiter: 100 req/min
-// app.use(rateLimit({ windowSec: 60, maxRequests: 100, blockOnLimit: false }));
 
-// ConnectToDatabase();
+const app = express();
+
 app.use(express.json());
 app.use(requestLogger);
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
+
 app.use('/api', routes);
-app.use(errorHandler);
+
+// Basic error handler
+app.use((err, req, res, next) => {
+  const status = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+
+  if (status >= 500) {
+    console.error(err);
+  }
+
+  res.status(status).json({ message });
+});
 
 module.exports = app;

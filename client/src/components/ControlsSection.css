@@ -1,0 +1,83 @@
+.controls-section {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.6) 100%);
+  backdrop-filter: blur(10px);
+  padding: 20px 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(75, 85, 99, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+              inset 1px 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.search-box {
+  margin-bottom: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 18px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 2px solid rgba(75, 85, 99, 0.3);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.search-box input::placeholder {
+  color: var(--text-secondary);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.filter-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 2px solid rgba(75, 85, 99, 0.3);
+  border-radius: 10px;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 140px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.filter-select option {
+  background: var(--dark-bg);
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .controls-section {
+    padding: 16px 20px;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+}

@@ -1,0 +1,38 @@
+.dashboard-container {
+  max-width: 1800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.top-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.analytics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-container {
+    gap: 20px;
+  }
+
+  .top-section,
+  .stats-section,
+  .analytics-section {
+    gap: 15px;
+  }
+}

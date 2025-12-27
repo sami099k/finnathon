@@ -19,12 +19,22 @@ async function detectHighRequestRate(now) {
   ]);
 
   for (const r of results) {
-    await Alert.create({
+    // Check if alert already exists in last 2 minutes to avoid duplicates
+    const twoMinsAgo = new Date(now - 2 * 60 * 1000);
+    const existing = await Alert.findOne({
       clientId: r._id,
       violationType: "RATE_LIMIT_EXCEEDED",
-      severity: "HIGH",
-      details: { requestsPerMinute: r.count }
-    });
+      timestamp: { $gte: twoMinsAgo }
+    }).lean();
+
+    if (!existing) {
+      await Alert.create({
+        clientId: r._id,
+        violationType: "RATE_LIMIT_EXCEEDED",
+        severity: "HIGH",
+        details: { requestsPerMinute: r.count }
+      });
+    }
   }
 }
 
@@ -100,7 +110,7 @@ async function detectUnauthorizedAccess(now) {
 // ---------------- RULE 3 ----------------
 // /transaction without /balance in last 5 mins
 async function detectSequenceAnomaly(now) {
-  const fiveMinutesAgo = new Date(now - 1 * 60 * 1000);
+  const fiveMinutesAgo = new Date(now - 5 * 60 * 1000);
 
   const txCalls = await ApiLog.find({
     endpoint: "/api/transaction",
@@ -108,7 +118,7 @@ async function detectSequenceAnomaly(now) {
   });
 
   for (const tx of txCalls) {
-      const clientId = tx._id;
+    const clientId = tx.clientIp;
     const balanceCheck = await ApiLog.findOne({
       clientIp: tx.clientIp,
       endpoint: "/api/balance",
@@ -116,16 +126,16 @@ async function detectSequenceAnomaly(now) {
     });
 
     if (!balanceCheck) {
-       const existing = await Alert.findOne({
-      clientId,
-      violationType: "UNUSUAL_API_SEQUENCE",
-      timestamp: { $gte: fiveMinutesAgo }
-    }).lean();
-    
-    if (existing) {
-      console.log(`Skipping alert creation for ${clientId}: recent alert exists at ${existing.timestamp} for sequence anomaly`);
-      continue;
-    }
+      const existing = await Alert.findOne({
+        clientId,
+        violationType: "UNUSUAL_API_SEQUENCE",
+        timestamp: { $gte: fiveMinutesAgo }
+      }).lean();
+      
+      if (existing) {
+        console.log(`Skipping alert creation for ${clientId}: recent alert exists at ${existing.timestamp} for sequence anomaly`);
+        continue;
+      }
 
       await Alert.create({
         clientId: tx.clientIp,
