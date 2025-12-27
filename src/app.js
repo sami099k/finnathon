@@ -5,6 +5,9 @@ const requestLogger = require('./middleware/requestLogger');
 
 const app = express();
 
+// honor X-Forwarded-For when behind proxies (dev tools, cloud)
+app.set('trust proxy', true);
+
 app.use(express.json());
 app.use(requestLogger);
 app.use('/api', routes);
