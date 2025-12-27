@@ -18,8 +18,10 @@ function AlertsSection({ alerts }) {
     return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
   };
 
-  const getAlertClass = (severity) => {
-    if (severity === 'critical' || severity === 'high') return 'alert-item critical';
+  const getAlertClass = (severity = '') => {
+    const s = severity.toLowerCase();
+    if (s === 'critical' || s === 'high') return 'alert-item critical';
+    if (s === 'medium') return 'alert-item medium';
     return 'alert-item';
   };
 
@@ -34,7 +36,7 @@ function AlertsSection({ alerts }) {
             <div key={alert._id || index} className={getAlertClass(alert.severity)}>
               <div className="alert-content">
                 <h4>{alert.violationType || 'Alert'}</h4>
-                <p>{alert.message || alert.description}</p>
+                <p>{alert.message || alert.description || alert?.details?.reason}</p>
               </div>
               <div className="alert-time">
                 {formatTimestamp(alert.timestamp || alert.createdAt)}

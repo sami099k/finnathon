@@ -8,16 +8,24 @@ function requestLogger(req, res, next) {
     const xff = req.headers['x-forwarded-for'];
     const fromHeader = Array.isArray(xff) ? xff[0] : (xff || '').split(',')[0].trim();
     const rawIp = fromHeader || req.socket?.remoteAddress || req.ip;
-    const clientIp = rawIp === '::1' ? '127.0.0.1' : rawIp;
+    const clientIp = res.locals.clientIp || (rawIp === '::1' ? '127.0.0.1' : rawIp);
+
+    const userAgent = req.headers['user-agent'] || 'N/A';
+    const authStatus = res.locals.authStatus || 'unknown';
+    const apiToken = req.apiToken || req.headers['x-api-key'] || req.headers.authorization || null;
+    const clientId = res.locals.clientId || (apiToken ? `token:${apiToken}` : `ip:${clientIp}`);
 
     const doc = {
       timestamp: new Date(),
       clientIp,
+      clientId,
       endpoint: req.originalUrl.split('?')[0],
       method: req.method,
       statusCode: res.statusCode,
       responseTimeMs: Math.round(durationMs * 100) / 100,
-      apiToken: req.headers['x-api-key'] || req.headers.authorization || null,
+      apiToken,
+      userAgent,
+      authStatus,
     };
 
     console.log('API_LOG', doc);
@@ -32,11 +40,12 @@ function requestLogger(req, res, next) {
           _id: logEntry._id,
           timestamp: logEntry.timestamp,
           ip: logEntry.clientIp,
+          clientId: logEntry.clientId,
           endpoint: logEntry.endpoint,
           method: logEntry.method,
           statusCode: logEntry.statusCode,
           responseTime: logEntry.responseTimeMs,
-          userAgent: req.headers['user-agent'],
+          userAgent,
           createdAt: logEntry.createdAt
         };
         io.emit('newLog', logData);

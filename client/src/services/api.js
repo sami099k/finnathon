@@ -45,3 +45,21 @@ export const fetchAlerts = async () => {
     return [];
   }
 };
+
+export const fetchBlocked = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/blocked`);
+    return response.data.blocked || [];
+  } catch (error) {
+    console.error('Error fetching blocked clients:', error);
+    return [];
+  }
+};
+
+export const blockClient = async (clientId) => {
+  await axios.post(`${API_BASE_URL}/blocked`, { clientId });
+};
+
+export const unblockClient = async (clientId) => {
+  await axios.delete(`${API_BASE_URL}/blocked/${encodeURIComponent(clientId)}`);
+};

@@ -9,7 +9,9 @@
     "dev:frontend": "vite",
     "build:frontend": "vite build",
     "start": "node index.js",
-    "seed": "node seedData.js"
+    "seed": "node seedData.js",
+    "simulate:normal": "node scripts/simulateNormal.js",
+    "simulate:attack": "node scripts/simulateAttack.js"
   },
   "keywords": [],
   "author": "",

@@ -7,8 +7,9 @@ import ChartsSection from './components/ChartsSection';
 import TopEndpoints from './components/TopEndpoints';
 import LogsTable from './components/LogsTable';
 import AlertsSection from './components/AlertsSection';
+import BlockedClients from './components/BlockedClients';
 import LogModal from './components/LogModal';
-import { fetchLogs, fetchStats, fetchAlerts } from './services/api';
+import { fetchLogs, fetchStats, fetchAlerts, fetchBlocked, blockClient, unblockClient } from './services/api';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
     avgResponseTime: 0
   });
   const [alerts, setAlerts] = useState([]);
+  const [blocked, setBlocked] = useState([]);
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [selectedLog, setSelectedLog] = useState(null);
   const [filters, setFilters] = useState({
@@ -59,15 +61,17 @@ function App() {
 
   const loadData = async () => {
     try {
-      const [logsData, statsData, alertsData] = await Promise.all([
+      const [logsData, statsData, alertsData, blockedData] = await Promise.all([
         fetchLogs(filters.timeRange),
         fetchStats(filters.timeRange),
-        fetchAlerts()
+        fetchAlerts(),
+        fetchBlocked()
       ]);
       
       setLogs(logsData);
       setStats(statsData);
       setAlerts(alertsData);
+      setBlocked(blockedData);
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Error loading data:', error);
@@ -136,6 +140,25 @@ function App() {
     setSelectedLog(null);
   };
 
+  const handleBlock = async (clientId) => {
+    try {
+      await blockClient(clientId);
+      const updated = await fetchBlocked();
+      setBlocked(updated);
+    } catch (error) {
+      console.error('Error blocking client:', error);
+    }
+  };
+
+  const handleUnblock = async (clientId) => {
+    try {
+      await unblockClient(clientId);
+      setBlocked((prev) => prev.filter((c) => c !== clientId));
+    } catch (error) {
+      console.error('Error unblocking client:', error);
+    }
+  };
+
   // Pagination
   const indexOfLastLog = currentPage * logsPerPage;
   const indexOfFirstLog = indexOfLastLog - logsPerPage;
@@ -175,6 +198,11 @@ function App() {
         <TopEndpoints logs={logs} />
         
         <AlertsSection alerts={alerts} />
+        <BlockedClients
+          blockedClients={blocked}
+          onBlock={handleBlock}
+          onUnblock={handleUnblock}
+        />
       </div>
       
       {selectedLog && (
