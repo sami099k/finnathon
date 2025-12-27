@@ -38,7 +38,7 @@ function processTransaction(req, res, next) {
     }
 
     if (type === 'debit' && numericAmount > account.balance) {
-      return res.status(400).json({ message: 'insufficient funds' });
+      return res.status(401).json({ message: 'insufficient funds' });
     }
 
     const delta = type === 'credit' ? numericAmount : -numericAmount;
@@ -63,7 +63,7 @@ function processTransaction(req, res, next) {
 
 function getHistory(req, res) {
   const limit = Math.min(Number(req.query.limit) || 20, 100);
-  res.json({ accountId: account.id, count: limit, items: account.history.slice(0, limit) });
+  res.status(200).json({ accountId: account.id, count: limit, items: account.history.slice(0, limit) });
 }
 
 module.exports = {
