@@ -628,8 +628,8 @@ For issues, feature requests, or improvements:
 
 ## 📄 License
 
-MIT
+NIT WARANGAL
 
 ---
 
-**Built by the FinTech Security Team** | Sentinel Protocol v1.0.0
+**Built by the DIVDE AND CHILL Team* | Sentinel Protocol v1.0.0
