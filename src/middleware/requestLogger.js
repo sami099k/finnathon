@@ -3,6 +3,23 @@ const ApiLog = require('../models/apiLog');
 function requestLogger(req, res, next) {
   const start = process.hrtime.bigint();
 
+  // canonical endpoint path without query string
+  const endpointPath = req.originalUrl.split('?')[0];
+
+  // whitelist of endpoints to persist (adjust to exact vs prefix matching below)
+  const allowed = ['/api/transaction', '/api/history', '/api/balance'];
+
+  // choose matching rule:
+  // - prefixMatch: allow subpaths like /api/transaction/abc
+  // - exactMatch: only allow exact paths (uncomment exactMatch to use it)
+  const prefixMatch = allowed.some(p => endpointPath === p || endpointPath.startsWith(p + '/'));
+  // const exactMatch = allowed.includes(endpointPath);
+
+  // If this request is not in the whitelist, skip attaching the DB-logging handler.
+  if (!prefixMatch) {
+    return next();
+  }
+
   res.on('finish', async () => {
     const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
     const xff = req.headers['x-forwarded-for'];
@@ -19,7 +36,7 @@ function requestLogger(req, res, next) {
       timestamp: new Date(),
       clientIp,
       clientId,
-      endpoint: req.originalUrl.split('?')[0],
+      endpoint: endpointPath, // already stripped of query string
       method: req.method,
       statusCode: res.statusCode,
       responseTimeMs: Math.round(durationMs * 100) / 100,
@@ -28,11 +45,9 @@ function requestLogger(req, res, next) {
       authStatus,
     };
 
-    console.log('API_LOG', doc);
-
     try {
       const logEntry = await ApiLog.create(doc);
-      
+
       // Emit socket event for real-time updates (if socket.io is available)
       const io = req.app.get('io');
       if (io) {

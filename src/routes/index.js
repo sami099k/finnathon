@@ -3,7 +3,7 @@ const logsController = require('../controllers/logsController');
 const accountController = require('../controllers/accountController');
 const blockController = require('../controllers/blockController');
 const auth = require('../middleware/auth');
-const rateLimiter = require('../middleware/rateLimiter');
+const rateLimiter = require('../middleware/RateLimiter');
 
 const router = express.Router();
 

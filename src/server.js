@@ -17,16 +17,16 @@ const io = new Server(server, {
 });
 
 // Socket.io connection
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+// io.on('connection', (socket) => {
+//   console.log('Client connected:', socket.id);
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
+//   socket.on('disconnect', () => {
+//     console.log('Client disconnected:', socket.id);
+//   });
+// });
 
-// Make io available globally for emitting events
-app.set('io', io);
+// // Make io available globally for emitting events
+// app.set('io', io);
 
 async function start() {
   try {
